@@ -1,10 +1,5 @@
 import sjcl from 'sjcl'
 
-const hash = (block) => {
-  const blockString = JSON.stringify(block)
-  const sha256bytes = sjcl.hash.sha256.hash(blockString)
-  return sjcl.codec.hex.fromBits(sha256bytes)
-}
 
 const validProof = (lastProof, proof) => {
   const guess = `${lastProof}${proof}`
@@ -43,6 +38,12 @@ export default class Blockchain {
     return this.lastBlock['index'] + 1
   }
 
+  hash(block) {
+    const blockString = JSON.stringify(block)
+    const sha256bytes = sjcl.hash.sha256.hash(blockString)
+    return sjcl.codec.hex.fromBits(sha256bytes)
+  }
+
   proofOfWork(lastProof) {
     let proof = 0
     while (validProof(lastProof, proof) === false) {
@@ -58,7 +59,7 @@ export default class Blockchain {
     while(currentIndex < chain.length) {
       const block = chain[currentIndex]
 
-      if (block.previousHash !== hash(lastBlock)) {
+      if (block.previousHash !== this.hash(lastBlock)) {
         return false
       }
 
